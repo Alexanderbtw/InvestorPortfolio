@@ -1,3 +1,3 @@
 ﻿namespace Core.Entities.SpecificData;
 
-public record struct MoneyValue(string Currency, ulong Units, ulong Nano);
+public record struct MoneyValue(string Currency, long Units, int Nano);
