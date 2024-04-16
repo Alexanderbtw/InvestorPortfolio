@@ -1,5 +1,7 @@
 using Core.Entities.SpecificData;
 
+namespace Core;
+
 public static class Extensions
 {
     public static MoneyValue Sum(this IEnumerable<MoneyValue> source) 

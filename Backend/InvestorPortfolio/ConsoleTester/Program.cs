@@ -1,5 +1,7 @@
-﻿using Application.Integration.Tinkoff;
+﻿using Application.Converters;
+using Application.Integration.Tinkoff;
 using Core.Entities;
+using Core.Entities.Base;
 using Core.Entities.SpecificData;
 using Core.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,7 +24,7 @@ serviceCollection.AddInvestmentTinkoffClient((provider, settings) =>
 {
     settings.AccessToken = token;
 });
-serviceCollection.AddHttpClient<ICurrencyConvertApiClient, CurrencyApiClient>(httpClient => {
+serviceCollection.AddHttpClient<CurrencyConvertApiClient, CurrencyApiClient>(httpClient => {
     httpClient.DefaultRequestHeaders.Add("apikey", apikey);
 });
 serviceCollection.AddScoped<ICurrencyConverter<MoneyValue, CurrencyCode>, CurrencyConverter>();

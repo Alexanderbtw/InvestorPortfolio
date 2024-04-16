@@ -1,10 +1,14 @@
+using Core.Entities.Base;
 using Core.Entities.SpecificData;
+using Core.Interfaces;
+
+namespace Application.Converters;
 
 public class CurrencyConverter : ICurrencyConverter<MoneyValue, CurrencyCode>
 {
-    private readonly ICurrencyConvertApiClient _client;
+    private readonly CurrencyConvertApiClient _client;
 
-    public CurrencyConverter(ICurrencyConvertApiClient client)
+    public CurrencyConverter(CurrencyConvertApiClient client)
     {
         _client = client;
     }

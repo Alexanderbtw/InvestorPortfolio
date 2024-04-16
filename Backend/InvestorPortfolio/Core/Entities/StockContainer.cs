@@ -1,7 +1,7 @@
 ﻿using Core.Entities.Base;
 using Core.Entities.SpecificData;
 
-namespace Core.Interfaces;
+namespace Core.Entities;
 
 public class StockContainer<T> : IEquatable<StockContainer<T>> where T : Stock
 {
