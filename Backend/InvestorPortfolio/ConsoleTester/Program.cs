@@ -10,7 +10,7 @@ using Microsoft.Extensions.Configuration;
 // Setup
 var configuration = new ConfigurationBuilder()
     .SetBasePath(AppContext.BaseDirectory)
-    .AddJsonFile("appsettings.json", false, false)
+    .AddJsonFile("appsettings.json", true, true)
     .AddEnvironmentVariables()
     .Build();
 
