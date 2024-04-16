@@ -4,8 +4,20 @@ namespace Core.Entities;
 
 public class Portfolio
 {
-    public Guid Id { get; init; }
     private readonly Dictionary<string, BrokerageAccount> _accounts = new();
+    public Guid Id { get; init; }
+
+    public Dictionary<string, decimal> Balance =>   
+        Accounts.Aggregate(new Dictionary<string, decimal>(), (dict, account) =>
+        {
+            var values = account.GetPricesByCurrenciesTickers();
+            foreach (var (key, value) in values)
+            {
+                if (!dict.ContainsKey(key)) dict.Add(key, 0);
+                dict[key] += value;
+            }
+            return dict;
+        });
     
     public bool TryAddAccount(string title, [MaybeNullWhen(false)] out BrokerageAccount? account)
     {

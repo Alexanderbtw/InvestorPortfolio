@@ -13,13 +13,19 @@ public class TinkoffDatasProfile : Profile
                 opt => opt.MapFrom(src => src.PlacementPrice)
             );
         
-        CreateMap<Currency, Core.Entities.Currency>().ReverseMap();
+        CreateMap<Currency, Core.Entities.Currency>()
+            .ReverseMap();
 
-        CreateMap<Share, Core.Entities.Share>().ForMember(
-            dest => dest.Type,
-            opt => opt.MapFrom(src => src.ShareType)
-        );
+        CreateMap<Share, Core.Entities.Share>()
+            .ForMember(
+                dest => dest.Type,
+                opt => opt.MapFrom(src => src.ShareType)
+            );
         
-        CreateMap<MoneyValue, Core.Entities.SpecificData.MoneyValue>().ReverseMap();
+        CreateMap<MoneyValue, Core.Entities.SpecificData.MoneyValue>()
+            .ForPath(
+                dest => dest.Currency.Code,
+                opt => opt.MapFrom(src => src.Currency)
+            );
     }
 }

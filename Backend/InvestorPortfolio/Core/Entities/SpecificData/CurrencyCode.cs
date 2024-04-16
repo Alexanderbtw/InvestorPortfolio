@@ -1,0 +1,1 @@
+public record struct CurrencyCode(string Code);

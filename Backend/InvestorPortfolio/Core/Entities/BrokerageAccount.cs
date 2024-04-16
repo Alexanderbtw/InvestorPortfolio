@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using Core.Entities.SpecificData;
 using Core.Interfaces;
 
 namespace Core.Entities;
@@ -6,12 +7,12 @@ namespace Core.Entities;
 public class BrokerageAccountBuilder : IBuilder<BrokerageAccount>
 {
     private readonly Portfolio _owner; 
-    private HashSet<StockContainer<Share>> _shares;
-    private HashSet<StockContainer<Bond>> _bonds;
-    private HashSet<StockContainer<Currency>> _currencies;
+    private HashSet<StockContainer<Share>>? _shares;
+    private HashSet<StockContainer<Bond>>? _bonds;
+    private HashSet<StockContainer<Currency>>? _currencies;
     private readonly string _title;
     public BrokerageAccountBuilder(Portfolio owner, string title)
-    {
+    {   
         _owner = owner;
         _title = title;
     }
@@ -50,7 +51,27 @@ public class BrokerageAccount
     public HashSet<StockContainer<Share>> Shares { get; init; } = [];
     public HashSet<StockContainer<Bond>> Bonds { get; init; } = [];
     public HashSet<StockContainer<Currency>> Currencies { get; init; } = [];
-    
+
+    public Dictionary<string, decimal> GetPricesByCurrenciesTickers(bool withShares = true, bool withBonds = true, bool withCurrencies = true) 
+    {
+        if (!withShares && !withBonds && !withCurrencies) throw new ArgumentException("At least one type of data must be provided");
+        
+        return Shares.Where(x => withShares).GroupBy(sc => sc.OnePurchasePrice.Currency.Code, sc => sc.SumPurchasePrice)
+            .Concat(Bonds.Where(x => withBonds).GroupBy(sc => sc.OnePurchasePrice.Currency.Code, sc => sc.SumPurchasePrice))
+            .Concat(Currencies.Where(x => withCurrencies).GroupBy(sc => sc.OnePurchasePrice.Currency.Code, sc => sc.SumPurchasePrice))
+            .ToDictionary(x => x.Key, x => x.Sum());
+    }
+
+    public Dictionary<string, MoneyValue> GetValuesByCurrenciesTickers(bool withShares = true, bool withBonds = true, bool withCurrencies = true) 
+    {
+        if (!withShares && !withBonds && !withCurrencies) throw new ArgumentException("At least one type of data must be provided");
+
+        return Shares.Where(x => withShares).GroupBy(sc => sc.OnePurchasePrice.Currency.Code, sc => sc.SumPurchaseValue)
+            .Concat(Bonds.Where(x => withBonds).GroupBy(sc => sc.OnePurchasePrice.Currency.Code, sc => sc.SumPurchaseValue))
+            .Concat(Currencies.Where(x => withCurrencies).GroupBy(sc => sc.OnePurchasePrice.Currency.Code, sc => sc.SumPurchaseValue))
+            .ToDictionary(x => x.Key, x => x.Sum());
+    }
+
     public BrokerageAccount(Portfolio owner, string title)
     {
         Owner = owner;
