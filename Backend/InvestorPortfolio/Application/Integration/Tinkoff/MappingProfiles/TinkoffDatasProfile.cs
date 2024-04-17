@@ -24,7 +24,7 @@ public class TinkoffDatasProfile : Profile
         
         CreateMap<MoneyValue, Core.Entities.SpecificData.MoneyValue>()
             .ForPath(
-                dest => dest.Currency.Code,
+                dest => dest.Currency.Value,
                 opt => opt.MapFrom(src => src.Currency)
             );
     }

@@ -5,50 +5,50 @@ namespace Core.Entities;
 
 public class StockContainer<T> : IEquatable<StockContainer<T>> where T : Stock
 {
-    public long Quantity { get; private set; }
+    public ulong Count { get; private set; }
     
     public DateTime PurchaseDate { get; init; }
-    public MoneyValue OnePurchasePrice { get; private set; }
+    public MoneyValue OnePurchaseValue { get; private set; }
     public T LastStock { get; private set; }
 
     public MoneyValue SumPurchaseValue => 
-        new(OnePurchasePrice.Currency, OnePurchasePrice.Units * Quantity + OnePurchasePrice.Nano * Quantity / 1_000_000_000, (int)(OnePurchasePrice.Nano * Quantity % 1_000_000_000));
-    public decimal SumPurchasePrice => Quantity * OnePurchasePrice.Units + (Quantity * (decimal)OnePurchasePrice.Nano / 1_000_000_000);
+        new(OnePurchaseValue.Currency, OnePurchaseValue.Units * Count + OnePurchaseValue.Nano * Count / 1_000_000_000, (uint)(OnePurchaseValue.Nano * Count % 1_000_000_000));
+    public decimal SumPurchasePrice => 
+        Count * OnePurchaseValue.ToDecimal();
 
-    public StockContainer(T stock, long quantity)
+    public StockContainer(T stock, ulong quantity)
     {
         LastStock = stock;
-        Quantity = quantity * stock.Lot;
+        Count = quantity * stock.Lot;
         PurchaseDate = DateTime.Today;
-        OnePurchasePrice = stock.Nominal;
+        OnePurchaseValue = stock.Nominal;
     }
 
-    public void AddStock(T stock, long quantity)
+    public void AddStock(T stock, ulong quantity)
     {
         if (!LastStock.Equals(stock) || PurchaseDate != DateTime.Today) throw new NotEqualStockException("Stocks are not equal");
-
-        quantity *= stock.Lot;
-        Quantity += quantity;
-
-        long extUnits = (OnePurchasePrice.Nano + stock.Nominal.Nano) / Quantity / 1_000_000_000;
-        long nanos = (OnePurchasePrice.Nano + stock.Nominal.Nano) / Quantity % 1_000_000_000;
-        OnePurchasePrice = new MoneyValue(
-            stock.Nominal.Currency, 
-            (OnePurchasePrice.Units + stock.Nominal.Units) / Quantity + extUnits, 
-            (int)nanos
-        );
+        
+        ulong count = stock.Lot * quantity;
+        var currSumPurchaseValue = SumPurchaseValue;
+        Count += count;
+        
+        decimal onePurchasePrice = (currSumPurchaseValue.Units + stock.Nominal.Units * count + (decimal)(currSumPurchaseValue.Nano + stock.Nominal.Nano * count) / 1_000_000_000) / Count;
+        
+        OnePurchaseValue = MoneyValue.FromDecimal(onePurchasePrice, stock.Nominal.Currency);
+        
         LastStock = stock;
     }
 
-    public bool TryRemoveStock(long quantity, out bool isZero)
+    public bool TryRemoveStock(ulong quantity, ulong lot, out bool isZero)
     {
+        quantity *= lot;
         isZero = false;
-        if (Quantity < quantity)
+        if (Count < quantity)
         {
             return false;
         } 
-        else if (Quantity == quantity) isZero = true;
-        Quantity -= quantity;
+        else if (Count == quantity) isZero = true;
+        Count -= quantity;
         return true;
     }
 

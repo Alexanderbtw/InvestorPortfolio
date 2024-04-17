@@ -4,11 +4,20 @@ namespace Core.Entities.Base;
 
 public abstract class Stock : IEquatable<Stock>
 {
-    public string Isin { get; init; } = string.Empty;
-    public string Ticker { get; init; } = string.Empty;
+    public string Isin { get; init; }
+    public string Ticker { get; init; }
     public MoneyValue Nominal { get; init; }
-    public long Lot { get; init; }
-    public string Name { get; init; } = string.Empty;
+    public ulong Lot { get; init; }
+    public string Name { get; init; }
+
+    protected Stock(string isin, string ticker, MoneyValue nominal, ulong lot, string name)
+    {
+        Isin = isin;
+        Ticker = ticker;
+        Nominal = nominal;
+        Lot = lot;
+        Name = name;
+    }
 
     public bool Equals(Stock? other)
     {

@@ -6,8 +6,8 @@ public static class Extensions
 {
     public static MoneyValue Sum(this IEnumerable<MoneyValue> source) 
     {
-        long units = 0;
-        int nano = 0;
+        ulong units = 0;
+        uint nano = 0;
         foreach (var item in source) 
         {
             if (item.Currency != source.First().Currency) throw new ArgumentException("Currencies are not equal");

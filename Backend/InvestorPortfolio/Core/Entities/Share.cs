@@ -1,10 +1,16 @@
 ﻿using Core.Entities.Base;
+using Core.Entities.SpecificData;
 
 namespace Core.Entities;
 
 public class Share : Stock
 {
     public ShareType Type{ get; set; }
+
+    public Share(string isin, string ticker, MoneyValue nominal, ulong lot, string name, ShareType type = ShareType.Unspecified) : base(isin, ticker, nominal, lot, name)
+    {
+        Type = type;
+    }
 }
 
 public enum ShareType

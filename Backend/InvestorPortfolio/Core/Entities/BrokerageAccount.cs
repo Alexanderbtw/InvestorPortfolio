@@ -56,9 +56,9 @@ public class BrokerageAccount
     {
         if (!withShares && !withBonds && !withCurrencies) throw new ArgumentException("At least one type of data must be provided");
         
-        return Shares.Where(x => withShares).GroupBy(sc => sc.OnePurchasePrice.Currency.Code, sc => sc.SumPurchasePrice)
-            .Concat(Bonds.Where(x => withBonds).GroupBy(sc => sc.OnePurchasePrice.Currency.Code, sc => sc.SumPurchasePrice))
-            .Concat(Currencies.Where(x => withCurrencies).GroupBy(sc => sc.OnePurchasePrice.Currency.Code, sc => sc.SumPurchasePrice))
+        return Shares.Where(x => withShares).GroupBy(sc => sc.OnePurchaseValue.Currency.Value, sc => sc.SumPurchasePrice)
+            .Concat(Bonds.Where(x => withBonds).GroupBy(sc => sc.OnePurchaseValue.Currency.Value, sc => sc.SumPurchasePrice))
+            .Concat(Currencies.Where(x => withCurrencies).GroupBy(sc => sc.OnePurchaseValue.Currency.Value, sc => sc.SumPurchasePrice))
             .ToDictionary(x => x.Key, x => x.Sum());
     }
 
@@ -66,9 +66,9 @@ public class BrokerageAccount
     {
         if (!withShares && !withBonds && !withCurrencies) throw new ArgumentException("At least one type of data must be provided");
 
-        return Shares.Where(x => withShares).GroupBy(sc => sc.OnePurchasePrice.Currency.Code, sc => sc.SumPurchaseValue)
-            .Concat(Bonds.Where(x => withBonds).GroupBy(sc => sc.OnePurchasePrice.Currency.Code, sc => sc.SumPurchaseValue))
-            .Concat(Currencies.Where(x => withCurrencies).GroupBy(sc => sc.OnePurchasePrice.Currency.Code, sc => sc.SumPurchaseValue))
+        return Shares.Where(x => withShares).GroupBy(sc => sc.OnePurchaseValue.Currency.Value, sc => sc.SumPurchaseValue)
+            .Concat(Bonds.Where(x => withBonds).GroupBy(sc => sc.OnePurchaseValue.Currency.Value, sc => sc.SumPurchaseValue))
+            .Concat(Currencies.Where(x => withCurrencies).GroupBy(sc => sc.OnePurchaseValue.Currency.Value, sc => sc.SumPurchaseValue))
             .ToDictionary(x => x.Key, x => x.Sum());
     }
 
@@ -87,44 +87,65 @@ public class BrokerageAccount
         Currencies = currencies ?? Currencies;
     }
 
-    public void AddShares(Share share, long quantity) 
+    public void AddShares(Share share, ulong quantity) 
     {
+        var container = Shares.FirstOrDefault(s => s.Equals(new StockContainer<Share>(share, quantity)));
+        if (container != null)
+        {
+            container.AddStock(share, quantity);
+            return;
+        }
+
         Shares.Add(new StockContainer<Share>(share, quantity));
     }
 
-    public void AddBonds(Bond bond, long quantity) 
+    public void AddBonds(Bond bond, ulong quantity) 
     {
+        var container = Bonds.FirstOrDefault(b => b.Equals(new StockContainer<Bond>(bond, quantity)));
+        if (container != null)
+        {
+            container.AddStock(bond, quantity);
+            return;
+        }
+        
         Bonds.Add(new StockContainer<Bond>(bond, quantity));
     }
 
-    public void AddCurrencies(Currency currency, long quantity)
+    public void AddCurrencies(Currency currency, ulong quantity)
     {
+        var container = Currencies.FirstOrDefault(c => c.Equals(new StockContainer<Currency>(currency, quantity)));
+        if (container != null)
+        {
+            container.AddStock(currency, quantity);
+            return;
+        }
+        
         Currencies.Add(new StockContainer<Currency>(currency, quantity));
     }
 
-    public bool TryRemoveShares(Share share, long quantity)
+    public bool TryRemoveShares(Share share, ulong quantity)
     {
         var shares = new StockContainer<Share>(share, quantity);
         bool isZero = false;
-        bool result = Shares.FirstOrDefault(x => x.Equals(shares))?.TryRemoveStock(quantity, out isZero) ?? false;
+        bool result = Shares.FirstOrDefault(x => x.Equals(shares))?.TryRemoveStock(quantity, share.Lot, out isZero) ?? false;
         if (isZero) Shares.Remove(shares);
         return result;
     }
 
-    public bool TryRemoveBonds(Bond bond, long quantity)
+    public bool TryRemoveBonds(Bond bond, ulong quantity)
     {
         var bonds = new StockContainer<Bond>(bond, quantity);
         bool isZero = false;
-        bool result = Bonds.FirstOrDefault(x => x.Equals(bonds))?.TryRemoveStock(quantity, out isZero) ?? false;
+        bool result = Bonds.FirstOrDefault(x => x.Equals(bonds))?.TryRemoveStock(quantity, bond.Lot, out isZero) ?? false;
         if (isZero) Bonds.Remove(bonds);
         return result;
     }
 
-    public bool TryRemoveCurrencies(Currency currency, long quantity)
+    public bool TryRemoveCurrencies(Currency currency, ulong quantity)
     {
         var currencies = new StockContainer<Currency>(currency, quantity);
         bool isZero = false;
-        bool result = Currencies.FirstOrDefault(x => x.Equals(currencies))?.TryRemoveStock(quantity, out isZero) ?? false;
+        bool result = Currencies.FirstOrDefault(x => x.Equals(currencies))?.TryRemoveStock(quantity, currency.Lot, out isZero) ?? false;
         if (isZero) Currencies.Remove(currencies);
         return result;
     }

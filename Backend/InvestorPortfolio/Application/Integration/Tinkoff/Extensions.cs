@@ -3,6 +3,7 @@ using Application.Integration.Tinkoff.MappingProfiles;
 using Core.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Tinkoff.InvestApi;
+using Tinkoff.InvestApi.V1;
 
 namespace Application.Integration.Tinkoff;
 

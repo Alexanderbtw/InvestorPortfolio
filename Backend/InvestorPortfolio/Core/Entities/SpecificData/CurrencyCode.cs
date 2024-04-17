@@ -1,1 +1,1 @@
-public record struct CurrencyCode(string Code);
+public record struct CurrencyCode(string Value);
