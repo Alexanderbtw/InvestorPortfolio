@@ -6,7 +6,7 @@ public class JsonSaver<T> : IAsyncFileSaver<T>
     {
          try 
         {
-            var stream = File.OpenRead(path);
+            using var stream = File.OpenRead(path);
             return JsonSerializer.Deserialize<T>(stream)!;
         }
         catch 
@@ -19,7 +19,7 @@ public class JsonSaver<T> : IAsyncFileSaver<T>
     {
         try 
         {
-            var stream = File.OpenRead(path);
+            await using var stream = File.OpenRead(path);
             return await JsonSerializer.DeserializeAsync<T>(stream)!;
         }
         catch 
@@ -31,18 +31,18 @@ public class JsonSaver<T> : IAsyncFileSaver<T>
     public bool Save(T objectToSave, string path)
     {
          try 
-        {
-            using FileStream createStream = File.Create(path);
-            JsonSerializer.Serialize(createStream, objectToSave, new JsonSerializerOptions() {
-                AllowTrailingCommas = true,
-                WriteIndented = true,
-            });
-            return true;
-        }
-        catch 
-        {
-            return false;
-        }
+         {
+             using FileStream createStream = File.Create(path);
+             JsonSerializer.Serialize(createStream, objectToSave, new JsonSerializerOptions() {
+                 AllowTrailingCommas = true,
+                 WriteIndented = true,
+             });
+             return true;
+         }
+         catch 
+         {
+             return false;
+         }
     }
 
     public async Task<bool> SaveAsync(T objectToSave, string path)

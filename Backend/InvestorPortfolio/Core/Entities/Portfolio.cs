@@ -7,7 +7,10 @@ public class Portfolio
 {
     private readonly Dictionary<string, BrokerageAccount> _accounts = new();
     public Guid Id { get; init; } = new Guid();
-
+    
+    [JsonIgnore]
+    public IEnumerable<BrokerageAccount> Accounts => _accounts.Values;
+    
     [JsonIgnore]
     public Dictionary<string, decimal> Balance =>
         Accounts.Aggregate(new Dictionary<string, decimal>(), (dict, account) =>
@@ -28,6 +31,18 @@ public class Portfolio
         account = null;
         return false;
     } 
+    
+    public bool TryAddAccount(BrokerageAccount brokAccount, [MaybeNullWhen(false)] out BrokerageAccount? account)
+    {
+        if (_accounts.TryAdd(brokAccount.Title, brokAccount))
+        {
+            account = brokAccount;
+            return true;
+        }
+        account = null;
+        return false;
+    } 
+    
     public bool TryAddAccount(string title, Func<BrokerageAccountBuilder, BrokerageAccount>? builderConfiguration, out BrokerageAccount? account)
     {
         var builder = new BrokerageAccountBuilder(this, title);
@@ -36,8 +51,6 @@ public class Portfolio
     } 
     
     public BrokerageAccount? this[string title] => _accounts[title];
-    
-    public IEnumerable<BrokerageAccount> Accounts => _accounts.Values;
 
     public bool DeleteAccount(string title, out BrokerageAccount? account)
     {
