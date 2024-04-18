@@ -1,13 +1,15 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 
 namespace Core.Entities;
 
 public class Portfolio
 {
     private readonly Dictionary<string, BrokerageAccount> _accounts = new();
-    public Guid Id { get; init; }
+    public Guid Id { get; init; } = new Guid();
 
-    public Dictionary<string, decimal> Balance =>   
+    [JsonIgnore]
+    public Dictionary<string, decimal> Balance =>
         Accounts.Aggregate(new Dictionary<string, decimal>(), (dict, account) =>
         {
             var values = account.GetPricesByCurrenciesTickers();

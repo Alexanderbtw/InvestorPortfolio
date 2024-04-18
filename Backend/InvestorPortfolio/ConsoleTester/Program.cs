@@ -29,10 +29,16 @@ serviceCollection.AddHttpClient<CurrencyConvertApiClient, CurrencyApiClient>(htt
     httpClient.DefaultRequestHeaders.Add("apikey", apikey);
 });
 serviceCollection.AddScoped<ICurrencyConverter<MoneyValue, CurrencyCode>, CurrencyConverter>();
-var serviceProvider = serviceCollection.BuildServiceProvider();
+serviceCollection.AddScoped(typeof(IAsyncFileSaver<>), typeof(JsonSaver<>));
+serviceCollection.AddScoped(typeof(IFileSaver<>), typeof(XmlSaver<>));
+
+
+
+
 
 
 // Using
+var serviceProvider = serviceCollection.BuildServiceProvider();
 var portfolio = new Portfolio();
 var stockExchange = serviceProvider.GetRequiredService<IStockExchange>();
 var converter = serviceProvider.GetRequiredService<ICurrencyConverter<MoneyValue, CurrencyCode>>();
@@ -44,6 +50,10 @@ portfolio["TestAccount"]?.AddShares(new Share("isin", "ticker", new MoneyValue(n
 var val = portfolio["TestAccount"]!.Shares.First(x => x.LastStock.Name == "name")!.SumPurchaseValue;
 var res = await converter.ConvertAsync(val, new CurrencyCode("RUB"));
 Console.WriteLine(res);
+
+var saver = serviceProvider.GetRequiredService<IAsyncFileSaver<Portfolio>>();
+
+await saver.SaveAsync(portfolio, "Portfolio.json");
 
 var bonds = await stockExchange.GetBondsAsync();
 var currencies = await stockExchange.GetCurrenciesAsync();

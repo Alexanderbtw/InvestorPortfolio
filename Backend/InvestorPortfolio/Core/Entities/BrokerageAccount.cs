@@ -43,7 +43,7 @@ public class BrokerageAccountBuilder : IBuilder<BrokerageAccount>
 
 public class BrokerageAccount
 {
-    public Guid Id { get; init; }
+    public Guid Id { get; init; } = new Guid();
     public string Title { get; init; } = string.Empty;
     
     [JsonIgnore]
