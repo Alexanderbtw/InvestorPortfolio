@@ -1,11 +1,10 @@
-﻿using System.Reflection;
-using Application.Integration.Tinkoff.MappingProfiles;
+﻿using Application.Integration.Tinkoff;
+using Application.Integrations.Tinkoff.MappingProfiles;
 using Core.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Tinkoff.InvestApi;
-using Tinkoff.InvestApi.V1;
 
-namespace Application.Integration.Tinkoff;
+namespace Application.Integrations.Tinkoff;
 
 public static class Extensions
 {
@@ -13,7 +12,7 @@ public static class Extensions
     {
         services.AddAutoMapper(typeof(TinkoffDatasProfile).Assembly);
         services.AddInvestApiClient(configure);
-        services.AddScoped<IStockExchange, TinkoffStockExchange>();
+        services.AddScoped<IStockExchange, TinkoffStockExchangeService>();
         return services;
     }
 }

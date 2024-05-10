@@ -1,12 +1,15 @@
-﻿using Application.Converters;
-using Application.Converters.CurrencyApi;
-using Application.Integration.Tinkoff;
+﻿using Application.Integration.Tinkoff;
+using Application.Integrations.Tinkoff;
 using Core.Entities;
 using Core.Entities.Base;
 using Core.Entities.SpecificData;
 using Core.Interfaces;
+using Infrastructure.Converters.CurrencyApi;
+using Infrastructure.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
+using Persistence.FileSavers;
+using Persistence.Interfaces;
 
 // Setup
 var configuration = new ConfigurationBuilder()
@@ -28,9 +31,9 @@ serviceCollection.AddInvestmentTinkoffClient((provider, settings) =>
 serviceCollection.AddHttpClient<CurrencyConvertApiClient, CurrencyApiClient>(httpClient => {
     httpClient.DefaultRequestHeaders.Add("apikey", apikey);
 });
-serviceCollection.AddScoped<ICurrencyConverter<MoneyValue, CurrencyCode>, CurrencyConverter>();
-serviceCollection.AddScoped(typeof(IAsyncFileSaver<>), typeof(JsonSaver<>));
-serviceCollection.AddScoped(typeof(IFileSaver<>), typeof(XmlSaver<>));
+serviceCollection.AddTransient<ICurrencyConverter<MoneyValue, CurrencyCode>, CurrencyConverter>();
+serviceCollection.AddSingleton(typeof(IAsyncFileSaver<>), typeof(JsonSaver<>)); 
+serviceCollection.AddSingleton(typeof(IFileSaver<>), typeof(XmlSaver<>));
 
 
 

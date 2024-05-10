@@ -9,12 +9,12 @@ using Share = Core.Entities.Share;
 
 namespace Application.Integration.Tinkoff;
 
-public class TinkoffStockExchange : IStockExchange
+public class TinkoffStockExchangeService : IStockExchange
 {
     private readonly InvestApiClient _client;
     private readonly IMapper _mapper; 
 
-    public TinkoffStockExchange(InvestApiClient client, IMapper mapper)
+    public TinkoffStockExchangeService(InvestApiClient client, IMapper mapper)
     {
         _client = client;
         _mapper = mapper;

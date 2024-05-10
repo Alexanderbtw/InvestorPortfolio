@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Core.Entities;
 using Core.Entities.SpecificData;
+using Persistence.FileSavers;
 
 namespace Tests;
 
@@ -12,7 +13,7 @@ public class FileSavingTests
         // Arrange
         var portfolio = new Portfolio();
         portfolio.TryAddAccount(title: "TestAccount", out var account);
-        account.AddShares(new Share("isin", "ticker", new MoneyValue(new CurrencyCode("USD"), 1000, 0), 10, "name"), 10);
+        account?.AddShares(new Share("isin", "ticker", new MoneyValue(new CurrencyCode("USD"), 1000, 0), 10, "name"), 10);
         
         // Act
         var saver = new JsonSaver<Portfolio>();
@@ -28,7 +29,7 @@ public class FileSavingTests
         // Arrange
         var portfolio = new Portfolio();
         portfolio.TryAddAccount(title: "TestAccount", out var account);
-        account.AddShares(new Share("isin", "ticker", new MoneyValue(new CurrencyCode("USD"), 1000, 0), 10, "name"), 10);
+        account?.AddShares(new Share("isin", "ticker", new MoneyValue(new CurrencyCode("USD"), 1000, 0), 10, "name"), 10);
         File.WriteAllText("Portfolio.json", JsonSerializer.Serialize(portfolio));
 
         // Act

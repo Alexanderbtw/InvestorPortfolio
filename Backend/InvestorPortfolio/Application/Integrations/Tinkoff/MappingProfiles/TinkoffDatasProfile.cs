@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
-using Tinkoff.InvestApi.V1;
+using Bond = Tinkoff.InvestApi.V1.Bond;
+using Currency = Tinkoff.InvestApi.V1.Currency;
+using MoneyValue = Tinkoff.InvestApi.V1.MoneyValue;
+using Share = Tinkoff.InvestApi.V1.Share;
 
-namespace Application.Integration.Tinkoff.MappingProfiles;
+namespace Application.Integrations.Tinkoff.MappingProfiles;
 
 public class TinkoffDatasProfile : Profile
 {

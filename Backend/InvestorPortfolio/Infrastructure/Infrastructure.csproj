@@ -10,13 +10,4 @@
       <ProjectReference Include="..\Core\Core.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Include="AutoMapper" Version="13.0.1" />
-      <PackageReference Include="Tinkoff.InvestApi" Version="0.6.10" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Integrations\Moex\" />
-    </ItemGroup>
-
 </Project>

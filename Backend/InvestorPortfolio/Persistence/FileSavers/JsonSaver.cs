@@ -1,10 +1,13 @@
 using System.Text.Json;
+using Persistence.Interfaces;
+
+namespace Persistence.FileSavers;
 
 public class JsonSaver<T> : IAsyncFileSaver<T>
 {
     public T Recovery(string path)
     {
-         try 
+        try 
         {
             using var stream = File.OpenRead(path);
             return JsonSerializer.Deserialize<T>(stream)!;
@@ -20,7 +23,7 @@ public class JsonSaver<T> : IAsyncFileSaver<T>
         try 
         {
             await using var stream = File.OpenRead(path);
-            return await JsonSerializer.DeserializeAsync<T>(stream)!;
+            return (await JsonSerializer.DeserializeAsync<T>(stream))!;
         }
         catch 
         {
@@ -30,19 +33,19 @@ public class JsonSaver<T> : IAsyncFileSaver<T>
 
     public bool Save(T objectToSave, string path)
     {
-         try 
-         {
-             using FileStream createStream = File.Create(path);
-             JsonSerializer.Serialize(createStream, objectToSave, new JsonSerializerOptions() {
-                 AllowTrailingCommas = true,
-                 WriteIndented = true,
-             });
-             return true;
-         }
-         catch 
-         {
-             return false;
-         }
+        try 
+        {
+            using FileStream createStream = File.Create(path);
+            JsonSerializer.Serialize(createStream, objectToSave, new JsonSerializerOptions() {
+                AllowTrailingCommas = true,
+                WriteIndented = true,
+            });
+            return true;
+        }
+        catch 
+        {
+            return false;
+        }
     }
 
     public async Task<bool> SaveAsync(T objectToSave, string path)

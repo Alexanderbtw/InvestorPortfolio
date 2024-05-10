@@ -1,6 +1,6 @@
 using Core.Entities.Base;
 
-namespace Application.Converters.CurrencyApi;
+namespace Infrastructure.Converters.CurrencyApi;
 
 public sealed class CurrencyApiClient : CurrencyConvertApiClient
 {   

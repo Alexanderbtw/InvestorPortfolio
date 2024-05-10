@@ -1,3 +1,5 @@
+namespace Persistence.Interfaces;
+
 public interface IAsyncFileSaver<T> : IFileSaver<T>
 {
     public abstract Task<bool> SaveAsync(T objectToSave, string path);
