@@ -9,69 +9,100 @@ using InvestorAPI.Endpoints;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Persistence;
 using Persistence.FileSavers;
 using Persistence.Repositories;
+using Serilog;
+using Serilog.Events;
+using SerilogTracing;
 
-var builder = WebApplication.CreateBuilder(args);
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Override("Microsoft.AspNetCore.Hosting", LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.AspNetCore.Routing", LogEventLevel.Warning)
+    .Enrich.WithProperty("Application", "InvestorAPI")
+    .WriteTo.Console()
+    .WriteTo.Seq(
+        "http://localhost:5341",
+        apiKey: Environment.GetEnvironmentVariable("SEQ_API_KEY"))
+    .CreateLogger();
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+using var listener = new ActivityListenerConfiguration()
+    .Instrument.AspNetCoreRequests()
+    .TraceToSharedLogger();
 
-string? token = builder.Configuration["Tinkoff:TOKEN"];
-ArgumentException.ThrowIfNullOrEmpty(token, nameof(token));
-string? apikey = builder.Configuration["Exchange:APIKEY"];
-ArgumentException.ThrowIfNullOrEmpty(apikey, nameof(apikey));
-builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
+Log.Information("Starting up");
 
-builder.Services.AddDbContext<InvestmentDbContext>(options =>
+try
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString(nameof(InvestmentDbContext)));
-});
+    var builder = WebApplication.CreateBuilder(args);
+    builder.Services.AddSerilog();
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
 
-builder.Services.AddInvestmentTinkoffClient((provider, settings) => { settings.AccessToken = token; });
-builder.Services.AddCurrencyConverter(apikey);
-builder.Services.AddFileSavers();
-builder.Services.AddApplication();
+    string? token = builder.Configuration["Tinkoff:TOKEN"];
+    ArgumentException.ThrowIfNullOrEmpty(token, nameof(token));
+    string? apikey = builder.Configuration["Exchange:APIKEY"];
+    ArgumentException.ThrowIfNullOrEmpty(apikey, nameof(apikey));
+    builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
 
-var jwtOptions = new JwtOptions();
-builder.Configuration.GetSection(nameof(JwtOptions)).Bind(jwtOptions);
-builder.Services.AddApiAuthentication(jwtOptions);
+    builder.Services.AddDbContext<InvestmentDbContext>(options =>
+    {
+        options.UseNpgsql(builder.Configuration.GetConnectionString(nameof(InvestmentDbContext)));
+    });
 
-var app = builder.Build();
+    builder.Services.AddInvestmentTinkoffClient((provider, settings) => { settings.AccessToken = token; });
+    builder.Services.AddCurrencyConverter(apikey);
+    builder.Services.AddFileSavers();
+    builder.Services.AddApplication();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    var jwtOptions = new JwtOptions();
+    builder.Configuration.GetSection(nameof(JwtOptions)).Bind(jwtOptions);
+    builder.Services.AddApiAuthentication(jwtOptions);
+
+    var app = builder.Build();
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+
+    app.UseHttpsRedirection();
+
+    app.UseCookiePolicy(new CookiePolicyOptions
+    {
+        MinimumSameSitePolicy = SameSiteMode.Strict,
+        HttpOnly = HttpOnlyPolicy.Always,
+        Secure = CookieSecurePolicy.Always
+    });
+
+    app.UseAuthentication();
+    app.UseAuthorization();
+
+    app.MapGroup("/public").MapPublicInvestmentEndpoints()
+        .WithOpenApi()
+        .WithTags("Public");
+    app.MapGroup("/auth").MapUserEndpoints()
+        .WithOpenApi()
+        .WithTags("Auth");
+    app.MapGroup("/individual").MapIndividualInvestmentEndpoints()
+        .RequireAuthorization()
+        .WithOpenApi()
+        .WithTags("Individual");
+
+    app.Run();
 }
-
-app.UseHttpsRedirection();
-
-app.UseCookiePolicy(new CookiePolicyOptions
+catch (Exception e)
 {
-    MinimumSameSitePolicy = SameSiteMode.Strict,
-    HttpOnly = HttpOnlyPolicy.Always,
-    Secure = CookieSecurePolicy.Always
-});
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapGroup("/public").MapPublicInvestmentEndpoints()
-    .WithOpenApi()
-    .WithTags("Public");
-app.MapGroup("/auth").MapUserEndpoints()
-    .WithOpenApi()
-    .WithTags("Auth");
-app.MapGroup("/individual").MapIndividualInvestmentEndpoints()
-    .RequireAuthorization()
-    .WithOpenApi()
-    .WithTags("Individual");
-
-app.Run();
+    Log.Fatal(e, "Unhandled exception");
+    return 1;
+}
+finally
+{
+    await Log.CloseAndFlushAsync();
+}
+return 0;
 
 internal static class Extensions
 {
