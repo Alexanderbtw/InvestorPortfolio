@@ -5,8 +5,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\Application.csproj", "{011383AF-77F7-433E-ABCD-30B4B12309FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleTester", "ConsoleTester\ConsoleTester.csproj", "{683DA58F-1A53-439F-BF47-7CD90AEC3C81}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{D38A1EE7-157F-4663-83A2-0B74BDEF6DA6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestorAPI", "InvestorAPI\InvestorAPI.csproj", "{E37B93AA-BD8F-41B3-8837-BD70537005F6}"
@@ -29,10 +27,6 @@ Global
 		{011383AF-77F7-433E-ABCD-30B4B12309FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{011383AF-77F7-433E-ABCD-30B4B12309FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{011383AF-77F7-433E-ABCD-30B4B12309FC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{683DA58F-1A53-439F-BF47-7CD90AEC3C81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{683DA58F-1A53-439F-BF47-7CD90AEC3C81}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{683DA58F-1A53-439F-BF47-7CD90AEC3C81}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{683DA58F-1A53-439F-BF47-7CD90AEC3C81}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D38A1EE7-157F-4663-83A2-0B74BDEF6DA6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D38A1EE7-157F-4663-83A2-0B74BDEF6DA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D38A1EE7-157F-4663-83A2-0B74BDEF6DA6}.Release|Any CPU.ActiveCfg = Release|Any CPU

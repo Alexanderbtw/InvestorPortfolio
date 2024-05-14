@@ -11,7 +11,7 @@ public class CustomCurrencyApiDataConverter : JsonConverter<CurrencyDataRequest>
     {
         using var jsonDocument = JsonDocument.ParseValue(ref reader);
         var data = jsonDocument.RootElement.GetProperty("data");
-        var currencyData = new Dictionary<CurrencyCode, MoneyValue>();
+        var currencyData = new Dictionary<CurrencyCode, MoneyValue?>();
 
         foreach (var currencyElement in data.EnumerateObject())
         {

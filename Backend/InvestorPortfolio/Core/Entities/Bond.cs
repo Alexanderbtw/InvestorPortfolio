@@ -1,12 +1,10 @@
-﻿using Core.Entities.Base;
-using Core.Entities.SpecificData;
+﻿using System.Diagnostics.CodeAnalysis;
+using Core.Entities.Base;
 
 namespace Core.Entities;
 
-public class Bond : Stock
+[method: SetsRequiredMembers]
+public class Bond() : Stock
 {
-    public Bond(string isin, string ticker, MoneyValue nominal, ulong lot, string name) : base(isin, ticker, nominal, lot, name)
-    {
-        
-    }
+    
 }

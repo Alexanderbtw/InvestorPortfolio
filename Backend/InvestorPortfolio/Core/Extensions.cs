@@ -17,7 +17,12 @@ public static class Extensions
             units += nano / 1_000_000_000;
             nano %= 1_000_000_000;
         }
-        
-        return new(source.First().Currency, units, nano);
+
+        return new MoneyValue()
+        {
+            Currency = source.First().Currency,
+            Units = units,
+            Nano = nano
+        };
     }
 }

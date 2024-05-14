@@ -1,3 +1,4 @@
+using Application.Interfaces;
 using Core.Entities.Base;
 
 namespace Infrastructure.Converters.CurrencyApi;

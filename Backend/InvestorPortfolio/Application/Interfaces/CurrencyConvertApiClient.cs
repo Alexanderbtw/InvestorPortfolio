@@ -1,4 +1,4 @@
-namespace Core.Entities.Base;
+namespace Application.Interfaces;
 
 public abstract class CurrencyConvertApiClient
 {

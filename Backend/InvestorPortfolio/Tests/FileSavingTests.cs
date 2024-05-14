@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Core.Entities;
+using Core.Entities.Auth;
 using Core.Entities.SpecificData;
 using Persistence.FileSavers;
 
@@ -7,17 +8,46 @@ namespace Tests;
 
 public class FileSavingTests
 {
+    private Portfolio _portfolio;
+
+    public FileSavingTests()
+    {
+        var ulid = Guid.NewGuid();
+        _portfolio = new Portfolio()
+        {
+            Accounts = new HashSet<BrokerageAccount>(),
+            Id = ulid,
+            Owner = new User()
+            {
+                Id = ulid,
+                UserName = "TestUser",
+                PasswordHash = "TestPasswordHash",
+                Email = "TestEmail"
+                
+            },
+        };
+        _portfolio.TryAddAccount(title: "TestAccount", out var account);
+        account?.AddStock(new Share
+        {
+            Nominal = new MoneyValue()
+            {
+                Currency = new CurrencyCode("USD"),
+                Units = 1000,
+                Nano = 0
+            },
+            Lot = 10
+        }, 10, out _);
+    }
+    
     [Fact]
     public void JsonSave()
     {
         // Arrange
-        var portfolio = new Portfolio();
-        portfolio.TryAddAccount(title: "TestAccount", out var account);
-        account?.AddShares(new Share("isin", "ticker", new MoneyValue(new CurrencyCode("USD"), 1000, 0), 10, "name"), 10);
+        
         
         // Act
         var saver = new JsonSaver<Portfolio>();
-        saver.Save(portfolio, "Portfolio.json");
+        saver.Save(_portfolio, "Portfolio.json");
 
         // Assert
         Assert.True(File.Exists("Portfolio.json"));
@@ -27,21 +57,17 @@ public class FileSavingTests
     public void JsonRecovery()
     {
         // Arrange
-        var portfolio = new Portfolio();
-        portfolio.TryAddAccount(title: "TestAccount", out var account);
-        account?.AddShares(new Share("isin", "ticker", new MoneyValue(new CurrencyCode("USD"), 1000, 0), 10, "name"), 10);
-        File.WriteAllText("Portfolio.json", JsonSerializer.Serialize(portfolio));
+        File.WriteAllText("Portfolio.json", JsonSerializer.Serialize(_portfolio));
 
         // Act
         var saver = new JsonSaver<Portfolio>();
         var result = saver.Recovery("Portfolio.json");
 
-        var obj1Str = JsonSerializer.Serialize(portfolio);
+        var obj1Str = JsonSerializer.Serialize(_portfolio);
         var obj2Str = JsonSerializer.Serialize(result);
-        Assert.Equal(obj1Str, obj2Str);
 
         // Assert
 
-        // Assert.(portfolio, result);
+        Assert.Equal(obj1Str, obj2Str);
     }
 }

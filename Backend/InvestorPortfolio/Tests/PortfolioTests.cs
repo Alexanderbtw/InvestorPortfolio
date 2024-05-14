@@ -1,35 +1,54 @@
 using Core.Entities;
+using Core.Entities.Auth;
 using Core.Entities.SpecificData;
 
 namespace Tests;
 
 public class PortfolioTests
 {
+    private Portfolio _portfolio;
+    public PortfolioTests()
+    {
+        var guid = Guid.NewGuid();
+        _portfolio = new Portfolio()
+        {
+            Accounts = new HashSet<BrokerageAccount>(),
+            Id = guid,
+            Owner = new User()
+            {
+                Id = guid,
+                UserName = "TestUser",
+                PasswordHash = "TestPasswordHash",
+                Email = "TestEmail"
+                
+            },
+        };
+    }
+    
     [Fact]
     public void TestAddAccount()
     {
         // Arrange
-        var portfolio = new Portfolio();
+        
 
         // Act
-        portfolio.TryAddAccount(title: "TestAccount", out var account);
+        _portfolio.TryAddAccount(title: "TestAccount", out var account);
 
         // Assert
-        Assert.Contains(account, portfolio.Accounts);
+        Assert.Contains(account, _portfolio.Accounts!);
     }
 
     [Fact]
     public void TestRemoveAccount()
     {
         // Arrange
-        var portfolio = new Portfolio();
-        portfolio.TryAddAccount("TestAccount", out var account);
+        _portfolio.TryAddAccount("TestAccount", out var account);
 
         // Act
-        portfolio.DeleteAccount(account.Title, out var result);
+        _portfolio.DeleteAccount(account!.Title, out var result);
 
         // Assert
-        Assert.DoesNotContain(account, portfolio.Accounts);
+        Assert.DoesNotContain(account, _portfolio.Accounts);
         Assert.Equivalent(result, account);
     }
 
@@ -37,24 +56,41 @@ public class PortfolioTests
     public void TestGetBalanceWithSameCurrencyCode()
     {
         // Arrange
-        var portfolio = new Portfolio();
-        var acc1 = new BrokerageAccountBuilder(portfolio, "TestAccount").WithBonds(new HashSet<StockContainer<Bond>>
+        var acc1 = new BrokerageAccountBuilder(_portfolio, "TestAccount").WithBonds(new HashSet<StockContainer<Bond>>
         {
             new(
-                new Bond("TestBond", "TestIsin", new MoneyValue(new CurrencyCode("USD"), 1000, 0), 10, "TestName"),
+                new Bond
+                {
+                    Nominal = new MoneyValue()
+                    {
+                        Currency = new CurrencyCode("USD"),
+                        Units = 1000,
+                        Nano = 0
+                    },
+                    Lot = 10
+                },
                 10)
         }).Build();
-        var acc2 = new BrokerageAccountBuilder(portfolio, "TestAccount").WithShares(new HashSet<StockContainer<Share>>
+        var acc2 = new BrokerageAccountBuilder(_portfolio, "TestAccount").WithShares(new HashSet<StockContainer<Share>>
         {
             new(
-                new Share("TestBond", "TestIsin", new MoneyValue(new CurrencyCode("USD"), 100, 0), 100, "TestName2"),
+                new Share
+                {
+                    Nominal = new MoneyValue()
+                    {
+                        Currency = new CurrencyCode("USD"),
+                        Units = 1000,
+                        Nano = 0
+                    },
+                    Lot = 100
+                },
                 15)
         }).Build();
-        portfolio.TryAddAccount(acc1, out var res1);
-        portfolio.TryAddAccount(acc2, out var res2);
+        _portfolio.TryAddAccount(acc1, out var res1);
+        _portfolio.TryAddAccount(acc2, out var res2);
 
         // Act
-        var totalValue = portfolio.Balance.Sum(b => b.Value);
+        var totalValue = _portfolio.GetPricesByCurrenciesTickers().Sum(b => b.Value);
 
         // Assert
         Assert.Equal(100_000, totalValue);

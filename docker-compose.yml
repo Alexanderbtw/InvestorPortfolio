@@ -1,0 +1,23 @@
+﻿version: '3.9'
+
+services:
+  db:
+    container_name: postgres
+    image: postgres
+    shm_size: 128mb
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=superpass
+      - POSTGRES_DB=InvestorData
+
+  adminer:
+    container_name: db-adminer
+    image: adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db

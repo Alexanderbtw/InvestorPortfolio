@@ -363,3 +363,8 @@ MigrationBackup/
 FodyWeavers.xsd
 /Backend/InvestorPortfolio/.idea/
 appsettings*.json
+
+
+
+# My
+postgres-data/

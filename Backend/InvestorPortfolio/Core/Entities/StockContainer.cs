@@ -1,32 +1,55 @@
-﻿using Core.Entities.Base;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
+using Core.Entities.Base;
 using Core.Entities.SpecificData;
 
 namespace Core.Entities;
 
 public class StockContainer<T> : IEquatable<StockContainer<T>> where T : Stock
 {
+    public Guid Id { get; init; } = Guid.NewGuid();
     public ulong Count { get; private set; }
     
-    public DateTime PurchaseDate { get; init; }
-    public MoneyValue OnePurchaseValue { get; private set; }
-    public T LastStock { get; private set; }
+    public DateOnly PurchaseDate { get; init; } = DateOnly.FromDateTime(DateTime.Today);
+    [Required] public MoneyValue OnePurchaseValue { get; private set; }
+    
+    [Required] public T LastStock { get; private set; }
 
-    public MoneyValue SumPurchaseValue => 
-        new(OnePurchaseValue.Currency, OnePurchaseValue.Units * Count + OnePurchaseValue.Nano * Count / 1_000_000_000, (uint)(OnePurchaseValue.Nano * Count % 1_000_000_000));
-    public decimal SumPurchasePrice => 
+    [NotMapped] public MoneyValue SumPurchaseValue =>
+        new MoneyValue()
+        {
+            Currency = OnePurchaseValue.Currency,
+            Units = Count * OnePurchaseValue.Units + Count * OnePurchaseValue.Nano / 1_000_000_000,
+            Nano = (uint)(Count * OnePurchaseValue.Nano % 1_000_000_000)
+        };
+    [NotMapped] public decimal SumPurchasePrice => 
         Count * OnePurchaseValue.ToDecimal();
 
+    private StockContainer() { }
+    
+    [SetsRequiredMembers] 
     public StockContainer(T stock, ulong quantity)
     {
         LastStock = stock;
         Count = quantity * stock.Lot;
-        PurchaseDate = DateTime.Today;
+        PurchaseDate = DateOnly.FromDateTime(DateTime.Today);
         OnePurchaseValue = stock.Nominal;
+    }
+    
+    [JsonConstructor]
+    public StockContainer(T lastStock, ulong count, DateOnly purchaseDate, MoneyValue onePurchaseValue)
+    {
+        LastStock = lastStock;
+        Count = count;
+        PurchaseDate = purchaseDate;
+        OnePurchaseValue = onePurchaseValue;
     }
 
     public void AddStock(T stock, ulong quantity)
     {
-        if (!LastStock.Equals(stock) || PurchaseDate != DateTime.Today) throw new NotEqualStockException("Stocks are not equal");
+        if (!LastStock.Equals(stock) || PurchaseDate !=  DateOnly.FromDateTime(DateTime.Today)) throw new NotEqualStockException("Stocks are not equal");
         
         ulong count = stock.Lot * quantity;
         var currSumPurchaseValue = SumPurchaseValue;

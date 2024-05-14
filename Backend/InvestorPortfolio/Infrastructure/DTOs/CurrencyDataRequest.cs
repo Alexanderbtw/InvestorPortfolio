@@ -4,5 +4,5 @@ namespace Infrastructure.DTOs;
 
 public class CurrencyDataRequest
 {
-    public required Dictionary<CurrencyCode, MoneyValue> Data { get; init; }
+    public required Dictionary<CurrencyCode, MoneyValue?> Data { get; init; }
 }

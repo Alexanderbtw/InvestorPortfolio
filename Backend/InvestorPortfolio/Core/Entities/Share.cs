@@ -1,16 +1,13 @@
-﻿using Core.Entities.Base;
+﻿using System.Diagnostics.CodeAnalysis;
+using Core.Entities.Base;
 using Core.Entities.SpecificData;
 
 namespace Core.Entities;
 
-public class Share : Stock
+[method: SetsRequiredMembers]
+public class Share() : Stock
 {
-    public ShareType Type{ get; set; }
-
-    public Share(string isin, string ticker, MoneyValue nominal, ulong lot, string name, ShareType type = ShareType.Unspecified) : base(isin, ticker, nominal, lot, name)
-    {
-        Type = type;
-    }
+    public required ShareType Type{ get; set; } = ShareType.Unspecified;
 }
 
 public enum ShareType

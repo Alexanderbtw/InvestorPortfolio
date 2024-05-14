@@ -1,5 +1,6 @@
 using System.Net.Http.Json;
 using System.Text.Json;
+using Application.Interfaces;
 using Core.Entities.Base;
 using Core.Entities.SpecificData;
 using Infrastructure.DTOs;
@@ -30,7 +31,7 @@ public class CurrencyConverter : ICurrencyConverter<MoneyValue, CurrencyCode>, I
 
     public Task Initialization { get; }
 
-    public async Task<MoneyValue> ConvertAsync(MoneyValue moneyFrom, CurrencyCode toCurrency, CancellationToken cancellationToken = default)
+    public async Task<MoneyValue?> ConvertAsync(MoneyValue moneyFrom, CurrencyCode toCurrency, CancellationToken cancellationToken = default)
     {
         await Initialization;
         
