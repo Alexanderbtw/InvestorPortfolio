@@ -1,4 +1,5 @@
 # Investor Portfolio (Not yet...)
 
 ## For work:
-Add Environment Variable with Tinkoff Investment API Token
+1) Check docker-compose.yml
+2) Configure appsettings.json for InvistorAPI
