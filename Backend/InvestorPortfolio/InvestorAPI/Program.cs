@@ -15,21 +15,26 @@ using Persistence.FileSavers;
 using Persistence.Repositories;
 using Serilog;
 using Serilog.Events;
-using SerilogTracing;
 
 Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .MinimumLevel.Override("Npgsql", LogEventLevel.Information)
     .MinimumLevel.Override("Microsoft.AspNetCore.Hosting", LogEventLevel.Warning)
     .MinimumLevel.Override("Microsoft.AspNetCore.Routing", LogEventLevel.Warning)
     .Enrich.WithProperty("Application", "InvestorAPI")
-    .WriteTo.Console()
+    .Enrich.FromLogContext()
     .WriteTo.Seq(
         "http://localhost:5341",
         apiKey: Environment.GetEnvironmentVariable("SEQ_API_KEY"))
     .CreateLogger();
 
+/* SerilogTracing
 using var listener = new ActivityListenerConfiguration()
     .Instrument.AspNetCoreRequests()
+    .Instrument.SqlClientCommands() // Not needed for Npgsql
+    // .Instrument.HttpClientRequests() Used by default
     .TraceToSharedLogger();
+*/
 
 Log.Information("Starting up");
 
@@ -61,6 +66,7 @@ try
     builder.Services.AddApiAuthentication(jwtOptions);
 
     var app = builder.Build();
+    app.UseSerilogRequestLogging();
 
     if (app.Environment.IsDevelopment())
     {
